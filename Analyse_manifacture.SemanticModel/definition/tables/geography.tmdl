@@ -1,0 +1,90 @@
+table geography
+	lineageTag: e3500491-68f5-4dae-beae-9d2f4fa8aa14
+
+	column Zip
+		dataType: string
+		lineageTag: a01e3b2a-7788-419b-b510-6a35def6bb6c
+		summarizeBy: none
+		sourceColumn: Zip
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: be7c0c2e-c17a-462f-8c1c-d6236cbc6116
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: ac40f22c-5af9-4408-bca5-92f8adfd4978
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: e63061b8-6c6a-4f11-b67e-260641d88fe8
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column District
+		dataType: string
+		lineageTag: 0967a4b5-73b6-49a5-9c87-96084cc92264
+		summarizeBy: none
+		sourceColumn: District
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 4930c8e1-862c-4367-8af7-e54e0478901e
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column ZipCountry = geography[Zip]&","&geography[Country]
+		lineageTag: da3a13bb-32b1-456e-923d-a3074da022fc
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Country Hiérarchie'
+		lineageTag: 41c65418-b055-4198-97d1-34a0aed624bf
+
+		level Country
+			lineageTag: c04dda4a-460b-4705-b6d8-efc71694f83a
+			column: Country
+
+		level State
+			lineageTag: 9ae32ab9-fad7-408e-a18c-9bfec166aacb
+			column: State
+
+		level District
+			lineageTag: 3e4cfa2f-6afd-4c4d-a464-d076a42bf910
+			column: District
+
+	partition geography = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("E:\MS2D4\projet\Fichiers de travail (1)\Data\USSales\bi_dimensions.xlsx"), null, true),
+				    geo_Sheet = Source{[Item="geo",Kind="Sheet"]}[Data],
+				    #"En-têtes promus" = Table.PromoteHeaders(geo_Sheet, [PromoteAllScalars=true]),
+				    #"Type modifié" = Table.TransformColumnTypes(#"En-têtes promus",{{"Source:", type text}, {"Public Database ", type any}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}}),
+				    #"Premières lignes supprimées" = Table.Skip(#"Type modifié",2),
+				    #"En-têtes promus1" = Table.PromoteHeaders(#"Premières lignes supprimées", [PromoteAllScalars=true]),
+				    #"Type modifié1" = Table.TransformColumnTypes(#"En-têtes promus1",{{"Zip", type text}, {"City", type text}, {"State", type text}, {"Region", type text}, {"District", type text}, {"Country", type text}})
+				in
+				    #"Type modifié1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

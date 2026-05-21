@@ -1,0 +1,103 @@
+table Product
+	lineageTag: eddfe179-e83f-442e-b836-4f59e731513f
+
+	column ProductID
+		dataType: int64
+		formatString: 0
+		lineageTag: c35303ca-8fc9-4a76-8d3f-78e0bbe264ea
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Product
+		dataType: string
+		lineageTag: 1d576c1b-142a-4a8e-a8fc-dbe08e36cefe
+		summarizeBy: none
+		sourceColumn: Product
+
+		annotation SummarizationSetBy = Automatic
+
+	column Segment
+		dataType: string
+		lineageTag: 5cf0cda8-293f-4e43-8049-406096fc6174
+		summarizeBy: none
+		sourceColumn: Segment
+
+		annotation SummarizationSetBy = Automatic
+
+	column Category
+		dataType: string
+		lineageTag: bc81f3f0-d9a0-4d52-bf93-15a068b6f835
+		summarizeBy: none
+		sourceColumn: Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column ManufacturerID
+		dataType: int64
+		formatString: 0
+		lineageTag: eaca6cf3-1533-4731-8fee-02b15a1888cf
+		summarizeBy: none
+		sourceColumn: ManufacturerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column MSRP
+		dataType: double
+		lineageTag: 6a120763-2358-49f8-b2d7-30231e600f45
+		summarizeBy: sum
+		sourceColumn: MSRP
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Devise
+		dataType: string
+		lineageTag: f694674a-ba16-4d22-91ae-d0f60ec63bec
+		summarizeBy: none
+		sourceColumn: Devise
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Category Hiérarchie'
+		lineageTag: 44c12fe9-4a42-4802-a1c6-4b610c767564
+
+		level Category
+			lineageTag: 05b64c13-9337-4584-b59c-878d8f9522e8
+			column: Category
+
+		level Segment
+			lineageTag: e0b400ea-946e-4437-95ff-adfc00659b77
+			column: Segment
+
+		level Product
+			lineageTag: f016a1a6-9ad7-4df0-9a8f-b9e63892b090
+			column: Product
+
+	partition Product = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("E:\MS2D4\projet\Fichiers de travail (1)\Data\USSales\bi_dimensions.xlsx"), null, true),
+				    Product_Table_Table = Source{[Item="Product_Table",Kind="Table"]}[Data],
+				    #"Type modifié" = Table.TransformColumnTypes(Product_Table_Table,{{"ProductID", Int64.Type}, {"Product", type text}, {"Category", type text}, {"ManufacturerID", Int64.Type}, {"Price", type text}}),
+				    #"Rempli vers le bas" = Table.FillDown(#"Type modifié",{"Category"}),
+				    #"Fractionner la colonne par délimiteur" = Table.SplitColumn(#"Rempli vers le bas", "Product", Splitter.SplitTextByDelimiter("|", QuoteStyle.Csv), {"Product.1", "Product.2"}),
+				    #"Type modifié1" = Table.TransformColumnTypes(#"Fractionner la colonne par délimiteur",{{"Product.1", type text}, {"Product.2", type text}}),
+				    #"Colonnes renommées" = Table.RenameColumns(#"Type modifié1",{{"Product.1", "Product"}, {"Product.2", "Segment"}}),
+				    #"Texte inséré après le délimiteur" = Table.AddColumn(#"Colonnes renommées", "Texte après le délimiteur", each Text.AfterDelimiter([Price], " "), type text),
+				    #"Colonnes renommées1" = Table.RenameColumns(#"Texte inséré après le délimiteur",{{"Texte après le délimiteur", "MSRP"}}),
+				    #"Type modifié avec paramètres régionaux" = Table.TransformColumnTypes(#"Colonnes renommées1", {{"MSRP", type text}}, "en-US"),
+				    #"Texte inséré avant le délimiteur" = Table.AddColumn(#"Type modifié avec paramètres régionaux", "Texte avant le délimiteur", each Text.BeforeDelimiter([Price], " "), type text),
+				    #"Colonnes renommées2" = Table.RenameColumns(#"Texte inséré avant le délimiteur",{{"Texte avant le délimiteur", "Devise"}}),
+				    #"Colonnes supprimées" = Table.RemoveColumns(#"Colonnes renommées2",{"Price"}),
+				    #"Type modifié avec paramètres régionaux1" = Table.TransformColumnTypes(#"Colonnes supprimées", {{"MSRP", type number}}, "en-US")
+				in
+				    #"Type modifié avec paramètres régionaux1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

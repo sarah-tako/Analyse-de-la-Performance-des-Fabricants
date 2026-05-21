@@ -1,0 +1,16 @@
+relationship AutoDetected_da31bdee-4a62-4348-b1bb-d3151d4dd767
+	fromColumn: Sales.ProductID
+	toColumn: Product.ProductID
+
+relationship AutoDetected_4170bd90-5cc8-4df5-a6f3-dccbf7feedcb
+	fromColumn: Product.ManufacturerID
+	toColumn: Manufacturer.ManufacturerID
+
+relationship 04a99f78-e8a5-ceff-61a5-35daf1a70717
+	fromColumn: Sales.ZipCountry
+	toColumn: geography.ZipCountry
+
+relationship 800049f7-5347-3420-e6cf-65dafef0f885
+	fromColumn: Sales.Date
+	toColumn: Date.Date
+

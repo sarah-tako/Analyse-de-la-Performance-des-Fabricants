@@ -1,0 +1,165 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "52f2fd34e51399ea1fe3",
+  "displayName": "Page 1",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "eb4fcadddab92ce0f78e",
+        "field": {
+          "GroupRef": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Manufacturer"
+              }
+            },
+            "Property": "Manufacturer (groupes)",
+            "GroupedColumns": [
+              {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Manufacturer"
+                    }
+                  },
+                  "Property": "Manufacturer"
+                }
+              }
+            ]
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "m",
+              "Entity": "Manufacturer",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "m"
+                          }
+                        },
+                        "Property": "Manufacturer (groupes)"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Top compétiteurs'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'VanArsdel'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      }
+    ]
+  },
+  "pageBinding": {
+    "name": "fbf24bc10a19a87d93ef",
+    "type": "Default",
+    "parameters": [],
+    "referenceScope": "CrossReport"
+  },
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "image": {
+            "image": {
+              "name": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'Background.jpg'"
+                  }
+                }
+              },
+              "url": {
+                "expr": {
+                  "ResourcePackageItem": {
+                    "PackageName": "RegisteredResources",
+                    "PackageType": 1,
+                    "ItemName": "Background11127006286081198.jpg"
+                  }
+                }
+              },
+              "scaling": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'Normal'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "da372cce9045b7989091",
+      "target": "4729c0157af5946bff03",
+      "type": "DataFilter"
+    },
+    {
+      "source": "da372cce9045b7989091",
+      "target": "64490991f717fc7940ed",
+      "type": "DataFilter"
+    },
+    {
+      "source": "4729c0157af5946bff03",
+      "target": "da372cce9045b7989091",
+      "type": "DataFilter"
+    },
+    {
+      "source": "4729c0157af5946bff03",
+      "target": "64490991f717fc7940ed",
+      "type": "DataFilter"
+    },
+    {
+      "source": "64490991f717fc7940ed",
+      "target": "4729c0157af5946bff03",
+      "type": "DataFilter"
+    },
+    {
+      "source": "64490991f717fc7940ed",
+      "target": "da372cce9045b7989091",
+      "type": "DataFilter"
+    }
+  ]
+}

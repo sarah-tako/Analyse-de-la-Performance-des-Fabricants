@@ -1,0 +1,56 @@
+table Date
+	lineageTag: 17336ac1-eecb-49c8-a6ac-9c197ec7bb77
+	dataCategory: Time
+
+	column Date
+		isKey
+		formatString: dd/mm/yyyy
+		lineageTag: cbc89035-7755-4f8c-802b-4f65c3ab59d3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Années
+		formatString: 0
+		lineageTag: 2532ddcd-465a-4b01-b6a4-347605e87308
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Années]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mois
+		lineageTag: 5b76eec1-1993-416d-9eba-edaa627388a5
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Mois]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'num Mois'
+		formatString: 0
+		lineageTag: 29200fd5-90e2-451e-abd6-06ba009864d1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [num Mois]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Date = calculated
+		mode: import
+		source = ```
+				ADDCOLUMNS(CALENDARAUTO(),
+				        "Années",YEAR([Date]), 
+				        "Mois",FORMAT([Date],"MMMM"),
+				        "num Mois",MONTH([Date])
+				 )
+				```
+
+	annotation PBI_Id = 7eb5f7d2fae84906887680f785192a83
+

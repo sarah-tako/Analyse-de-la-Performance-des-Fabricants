@@ -1,0 +1,272 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/semanticModel/unappliedChanges/1.0.0/schema.json",
+  "conceptualSchemaSettings": {},
+  "queries": [
+    {
+      "name": "Sales",
+      "lineageTag": "34a78b52-de27-4bff-931f-6e4025a30141",
+      "navigationStepName": "Navigation",
+      "text": [
+        "let",
+        "    Source = Csv.Document(File.Contents(\"E:\\MS2D4\\projet\\Fichiers de travail (1)\\Data\\USSales\\sales.csv\"),[Delimiter=\",\", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),",
+        "    #\"En-têtes promus\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+        "    #\"Type modifié\" = Table.TransformColumnTypes(#\"En-têtes promus\",{{\"ProductID\", Int64.Type}, {\"Date\", type date}, {\"Zip\", type text}, {\"Units\", Int64.Type}, {\"Revenue\", type text}}),",
+        "    #\"Type modifié avec paramètres régionaux\" = Table.TransformColumnTypes(#\"Type modifié\", {{\"Revenue\", type number}}, \"en-US\"),",
+        "    #\"Requête ajoutée\" = Table.Combine({#\"Type modifié avec paramètres régionaux\", #\"International Sales\"}),",
+        "    #\"Lignes filtrées\" = Table.SelectRows(#\"Requête ajoutée\", each true),",
+        "    #\"Colonne conditionnelle ajoutée\" = Table.AddColumn(#\"Lignes filtrées\", \"Personnalisé\", each if [Country] = null then \"USA\" else [Country]),",
+        "    #\"Colonnes supprimées\" = Table.RemoveColumns(#\"Colonne conditionnelle ajoutée\",{\"Country\"}),",
+        "    #\"Colonnes renommées\" = Table.RenameColumns(#\"Colonnes supprimées\",{{\"Personnalisé\", \"Country\"}})",
+        "in",
+        "    #\"Colonnes renommées\""
+      ],
+      "isDirectQuery": false,
+      "lastLoadedAsTableFormulaText": "{\"IncludesReferencedQueries\":false,\"RootFormulaText\":\"let\\n    Source = Csv.Document(File.Contents(\\\"E:\\\\MS2D4\\\\projet\\\\Fichiers de travail (1)\\\\Data\\\\USSales\\\\sales.csv\\\"),[Delimiter=\\\",\\\", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),\\n    #\\\"En-têtes promus\\\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),\\n    #\\\"Type modifié\\\" = Table.TransformColumnTypes(#\\\"En-têtes promus\\\",{{\\\"ProductID\\\", Int64.Type}, {\\\"Date\\\", type date}, {\\\"Zip\\\", type text}, {\\\"Units\\\", Int64.Type}, {\\\"Revenue\\\", type text}}),\\n    #\\\"Type modifié avec paramètres régionaux\\\" = Table.TransformColumnTypes(#\\\"Type modifié\\\", {{\\\"Revenue\\\", type number}}, \\\"en-US\\\"),\\n    #\\\"Requête ajoutée\\\" = Table.Combine({#\\\"Type modifié avec paramètres régionaux\\\", #\\\"International Sales\\\"}),\\n    #\\\"Lignes filtrées\\\" = Table.SelectRows(#\\\"Requête ajoutée\\\", each true),\\n    #\\\"Colonne conditionnelle ajoutée\\\" = Table.AddColumn(#\\\"Lignes filtrées\\\", \\\"Personnalisé\\\", each if [Country] = null then \\\"USA\\\" else [Country]),\\n    #\\\"Colonnes supprimées\\\" = Table.RemoveColumns(#\\\"Colonne conditionnelle ajoutée\\\",{\\\"Country\\\"}),\\n    #\\\"Colonnes renommées\\\" = Table.RenameColumns(#\\\"Colonnes supprimées\\\",{{\\\"Personnalisé\\\", \\\"Country\\\"}})\\nin\\n    #\\\"Colonnes renommées\\\"\",\"ReferencedQueriesFormulaText\":{}}",
+      "loadAsTableDisabled": false,
+      "resultType": "Table",
+      "isHidden": false
+    },
+    {
+      "name": "Product",
+      "lineageTag": "eddfe179-e83f-442e-b836-4f59e731513f",
+      "navigationStepName": "Navigation",
+      "text": [
+        "let",
+        "    Source = Excel.Workbook(File.Contents(\"E:\\MS2D4\\projet\\Fichiers de travail (1)\\Data\\USSales\\bi_dimensions.xlsx\"), null, true),",
+        "    Product_Table_Table = Source{[Item=\"Product_Table\",Kind=\"Table\"]}[Data],",
+        "    #\"Type modifié\" = Table.TransformColumnTypes(Product_Table_Table,{{\"ProductID\", Int64.Type}, {\"Product\", type text}, {\"Category\", type text}, {\"ManufacturerID\", Int64.Type}, {\"Price\", type text}}),",
+        "    #\"Rempli vers le bas\" = Table.FillDown(#\"Type modifié\",{\"Category\"}),",
+        "    #\"Fractionner la colonne par délimiteur\" = Table.SplitColumn(#\"Rempli vers le bas\", \"Product\", Splitter.SplitTextByDelimiter(\"|\", QuoteStyle.Csv), {\"Product.1\", \"Product.2\"}),",
+        "    #\"Type modifié1\" = Table.TransformColumnTypes(#\"Fractionner la colonne par délimiteur\",{{\"Product.1\", type text}, {\"Product.2\", type text}}),",
+        "    #\"Colonnes renommées\" = Table.RenameColumns(#\"Type modifié1\",{{\"Product.1\", \"Product\"}, {\"Product.2\", \"Segment\"}}),",
+        "    #\"Texte inséré après le délimiteur\" = Table.AddColumn(#\"Colonnes renommées\", \"Texte après le délimiteur\", each Text.AfterDelimiter([Price], \" \"), type text),",
+        "    #\"Colonnes renommées1\" = Table.RenameColumns(#\"Texte inséré après le délimiteur\",{{\"Texte après le délimiteur\", \"MSRP\"}}),",
+        "    #\"Type modifié avec paramètres régionaux\" = Table.TransformColumnTypes(#\"Colonnes renommées1\", {{\"MSRP\", type text}}, \"en-US\"),",
+        "    #\"Texte inséré avant le délimiteur\" = Table.AddColumn(#\"Type modifié avec paramètres régionaux\", \"Texte avant le délimiteur\", each Text.BeforeDelimiter([Price], \" \"), type text),",
+        "    #\"Colonnes renommées2\" = Table.RenameColumns(#\"Texte inséré avant le délimiteur\",{{\"Texte avant le délimiteur\", \"Devise\"}}),",
+        "    #\"Colonnes supprimées\" = Table.RemoveColumns(#\"Colonnes renommées2\",{\"Price\"}),",
+        "    #\"Type modifié avec paramètres régionaux1\" = Table.TransformColumnTypes(#\"Colonnes supprimées\", {{\"MSRP\", type number}}, \"en-US\")",
+        "in",
+        "    #\"Type modifié avec paramètres régionaux1\""
+      ],
+      "isDirectQuery": false,
+      "lastLoadedAsTableFormulaText": "{\"IncludesReferencedQueries\":false,\"RootFormulaText\":\"let\\n    Source = Excel.Workbook(File.Contents(\\\"E:\\\\MS2D4\\\\projet\\\\Fichiers de travail (1)\\\\Data\\\\USSales\\\\bi_dimensions.xlsx\\\"), null, true),\\n    Product_Table_Table = Source{[Item=\\\"Product_Table\\\",Kind=\\\"Table\\\"]}[Data],\\n    #\\\"Type modifié\\\" = Table.TransformColumnTypes(Product_Table_Table,{{\\\"ProductID\\\", Int64.Type}, {\\\"Product\\\", type text}, {\\\"Category\\\", type text}, {\\\"ManufacturerID\\\", Int64.Type}, {\\\"Price\\\", type text}}),\\n    #\\\"Rempli vers le bas\\\" = Table.FillDown(#\\\"Type modifié\\\",{\\\"Category\\\"}),\\n    #\\\"Fractionner la colonne par délimiteur\\\" = Table.SplitColumn(#\\\"Rempli vers le bas\\\", \\\"Product\\\", Splitter.SplitTextByDelimiter(\\\"|\\\", QuoteStyle.Csv), {\\\"Product.1\\\", \\\"Product.2\\\"}),\\n    #\\\"Type modifié1\\\" = Table.TransformColumnTypes(#\\\"Fractionner la colonne par délimiteur\\\",{{\\\"Product.1\\\", type text}, {\\\"Product.2\\\", type text}}),\\n    #\\\"Colonnes renommées\\\" = Table.RenameColumns(#\\\"Type modifié1\\\",{{\\\"Product.1\\\", \\\"Product\\\"}, {\\\"Product.2\\\", \\\"Segment\\\"}}),\\n    #\\\"Texte inséré après le délimiteur\\\" = Table.AddColumn(#\\\"Colonnes renommées\\\", \\\"Texte après le délimiteur\\\", each Text.AfterDelimiter([Price], \\\" \\\"), type text),\\n    #\\\"Colonnes renommées1\\\" = Table.RenameColumns(#\\\"Texte inséré après le délimiteur\\\",{{\\\"Texte après le délimiteur\\\", \\\"MSRP\\\"}}),\\n    #\\\"Type modifié avec paramètres régionaux\\\" = Table.TransformColumnTypes(#\\\"Colonnes renommées1\\\", {{\\\"MSRP\\\", type text}}, \\\"en-US\\\"),\\n    #\\\"Texte inséré avant le délimiteur\\\" = Table.AddColumn(#\\\"Type modifié avec paramètres régionaux\\\", \\\"Texte avant le délimiteur\\\", each Text.BeforeDelimiter([Price], \\\" \\\"), type text),\\n    #\\\"Colonnes renommées2\\\" = Table.RenameColumns(#\\\"Texte inséré avant le délimiteur\\\",{{\\\"Texte avant le délimiteur\\\", \\\"Devise\\\"}}),\\n    #\\\"Colonnes supprimées\\\" = Table.RemoveColumns(#\\\"Colonnes renommées2\\\",{\\\"Price\\\"}),\\n    #\\\"Type modifié avec paramètres régionaux1\\\" = Table.TransformColumnTypes(#\\\"Colonnes supprimées\\\", {{\\\"MSRP\\\", type number}}, \\\"en-US\\\")\\nin\\n    #\\\"Type modifié avec paramètres régionaux1\\\"\",\"ReferencedQueriesFormulaText\":{}}",
+      "loadAsTableDisabled": false,
+      "resultType": "Table",
+      "isHidden": false
+    },
+    {
+      "name": "geography",
+      "lineageTag": "e3500491-68f5-4dae-beae-9d2f4fa8aa14",
+      "navigationStepName": "Navigation",
+      "text": [
+        "let",
+        "    Source = Excel.Workbook(File.Contents(\"E:\\MS2D4\\projet\\Fichiers de travail (1)\\Data\\USSales\\bi_dimensions.xlsx\"), null, true),",
+        "    geo_Sheet = Source{[Item=\"geo\",Kind=\"Sheet\"]}[Data],",
+        "    #\"En-têtes promus\" = Table.PromoteHeaders(geo_Sheet, [PromoteAllScalars=true]),",
+        "    #\"Type modifié\" = Table.TransformColumnTypes(#\"En-têtes promus\",{{\"Source:\", type text}, {\"Public Database \", type any}, {\"Column3\", type text}, {\"Column4\", type text}, {\"Column5\", type text}, {\"Column6\", type text}}),",
+        "    #\"Premières lignes supprimées\" = Table.Skip(#\"Type modifié\",2),",
+        "    #\"En-têtes promus1\" = Table.PromoteHeaders(#\"Premières lignes supprimées\", [PromoteAllScalars=true]),",
+        "    #\"Type modifié1\" = Table.TransformColumnTypes(#\"En-têtes promus1\",{{\"Zip\", type text}, {\"City\", type text}, {\"State\", type text}, {\"Region\", type text}, {\"District\", type text}, {\"Country\", type text}})",
+        "in",
+        "    #\"Type modifié1\""
+      ],
+      "isDirectQuery": false,
+      "lastLoadedAsTableFormulaText": "{\"IncludesReferencedQueries\":false,\"RootFormulaText\":\"let\\n    Source = Excel.Workbook(File.Contents(\\\"E:\\\\MS2D4\\\\projet\\\\Fichiers de travail (1)\\\\Data\\\\USSales\\\\bi_dimensions.xlsx\\\"), null, true),\\n    geo_Sheet = Source{[Item=\\\"geo\\\",Kind=\\\"Sheet\\\"]}[Data],\\n    #\\\"En-têtes promus\\\" = Table.PromoteHeaders(geo_Sheet, [PromoteAllScalars=true]),\\n    #\\\"Type modifié\\\" = Table.TransformColumnTypes(#\\\"En-têtes promus\\\",{{\\\"Source:\\\", type text}, {\\\"Public Database \\\", type any}, {\\\"Column3\\\", type text}, {\\\"Column4\\\", type text}, {\\\"Column5\\\", type text}, {\\\"Column6\\\", type text}}),\\n    #\\\"Premières lignes supprimées\\\" = Table.Skip(#\\\"Type modifié\\\",2),\\n    #\\\"En-têtes promus1\\\" = Table.PromoteHeaders(#\\\"Premières lignes supprimées\\\", [PromoteAllScalars=true]),\\n    #\\\"Type modifié1\\\" = Table.TransformColumnTypes(#\\\"En-têtes promus1\\\",{{\\\"Zip\\\", type text}, {\\\"City\\\", type text}, {\\\"State\\\", type text}, {\\\"Region\\\", type text}, {\\\"District\\\", type text}, {\\\"Country\\\", type text}})\\nin\\n    #\\\"Type modifié1\\\"\",\"ReferencedQueriesFormulaText\":{}}",
+      "loadAsTableDisabled": false,
+      "resultType": "Table",
+      "isHidden": false
+    },
+    {
+      "name": "Manufacturer",
+      "lineageTag": "189b1a28-647c-4194-aa91-c157384e69bb",
+      "navigationStepName": "Navigation",
+      "text": [
+        "let",
+        "    Source = Excel.Workbook(File.Contents(\"E:\\MS2D4\\projet\\Fichiers de travail (1)\\Data\\USSales\\bi_dimensions.xlsx\"), null, true),",
+        "    manufacturer_Sheet = Source{[Item=\"manufacturer\",Kind=\"Sheet\"]}[Data],",
+        "    #\"En-têtes promus\" = Table.PromoteHeaders(manufacturer_Sheet, [PromoteAllScalars=true]),",
+        "    #\"Type modifié\" = Table.TransformColumnTypes(#\"En-têtes promus\",{{\"Column1\", type text}, {\"Column2\", type any}, {\"Column3\", type any}, {\"Column4\", type any}, {\"Column5\", type any}, {\"Column6\", type any}, {\"Column7\", type any}, {\"Column8\", type any}, {\"Column9\", type any}, {\"Column10\", type any}, {\"Column11\", type any}, {\"Column12\", type any}, {\"Column13\", type any}, {\"Column14\", type any}, {\"Column15\", type any}}),",
+        "    #\"Dernières lignes supprimées\" = Table.RemoveLastN(#\"Type modifié\",3),",
+        "    #\"Table transposée\" = Table.Transpose(#\"Dernières lignes supprimées\"),",
+        "    #\"En-têtes promus1\" = Table.PromoteHeaders(#\"Table transposée\", [PromoteAllScalars=true]),",
+        "    #\"Type modifié1\" = Table.TransformColumnTypes(#\"En-têtes promus1\",{{\"ManufacturerID\", Int64.Type}, {\"Manufacturer\", type text}, {\"Logo\", type text}})",
+        "in",
+        "    #\"Type modifié1\""
+      ],
+      "isDirectQuery": false,
+      "lastLoadedAsTableFormulaText": "{\"IncludesReferencedQueries\":false,\"RootFormulaText\":\"let\\n    Source = Excel.Workbook(File.Contents(\\\"E:\\\\MS2D4\\\\projet\\\\Fichiers de travail (1)\\\\Data\\\\USSales\\\\bi_dimensions.xlsx\\\"), null, true),\\n    manufacturer_Sheet = Source{[Item=\\\"manufacturer\\\",Kind=\\\"Sheet\\\"]}[Data],\\n    #\\\"En-têtes promus\\\" = Table.PromoteHeaders(manufacturer_Sheet, [PromoteAllScalars=true]),\\n    #\\\"Type modifié\\\" = Table.TransformColumnTypes(#\\\"En-têtes promus\\\",{{\\\"Column1\\\", type text}, {\\\"Column2\\\", type any}, {\\\"Column3\\\", type any}, {\\\"Column4\\\", type any}, {\\\"Column5\\\", type any}, {\\\"Column6\\\", type any}, {\\\"Column7\\\", type any}, {\\\"Column8\\\", type any}, {\\\"Column9\\\", type any}, {\\\"Column10\\\", type any}, {\\\"Column11\\\", type any}, {\\\"Column12\\\", type any}, {\\\"Column13\\\", type any}, {\\\"Column14\\\", type any}, {\\\"Column15\\\", type any}}),\\n    #\\\"Dernières lignes supprimées\\\" = Table.RemoveLastN(#\\\"Type modifié\\\",3),\\n    #\\\"Table transposée\\\" = Table.Transpose(#\\\"Dernières lignes supprimées\\\"),\\n    #\\\"En-têtes promus1\\\" = Table.PromoteHeaders(#\\\"Table transposée\\\", [PromoteAllScalars=true]),\\n    #\\\"Type modifié1\\\" = Table.TransformColumnTypes(#\\\"En-têtes promus1\\\",{{\\\"ManufacturerID\\\", Int64.Type}, {\\\"Manufacturer\\\", type text}, {\\\"Logo\\\", type text}})\\nin\\n    #\\\"Type modifié1\\\"\",\"ReferencedQueriesFormulaText\":{}}",
+      "loadAsTableDisabled": false,
+      "resultType": "Table",
+      "isHidden": false
+    },
+    {
+      "name": "International Sales",
+      "lineageTag": "af24fba0-5a03-4740-aa95-ab456afe18bc",
+      "navigationStepName": "Navigation",
+      "text": [
+        "let",
+        "    Source = Folder.Files(\"E:\\MS2D4\\projet\\Fichiers de travail (1)\\Data\\InternationalSales\"),",
+        "    #\"Fichiers masqués filtrés1\" = Table.SelectRows(Source, each [Attributes]?[Hidden]? <> true),",
+        "    #\"Appeler une fonction personnalisée1\" = Table.AddColumn(#\"Fichiers masqués filtrés1\", \"Transformer le fichier\", each #\"Transformer le fichier\"([Content])),",
+        "    #\"Colonnes renommées1\" = Table.RenameColumns(#\"Appeler une fonction personnalisée1\", {\"Name\", \"Source.Name\"}),",
+        "    #\"Autres colonnes supprimées1\" = Table.SelectColumns(#\"Colonnes renommées1\", {\"Source.Name\", \"Transformer le fichier\"}),",
+        "    #\"Colonne de tables développée1\" = Table.ExpandTableColumn(#\"Autres colonnes supprimées1\", \"Transformer le fichier\", Table.ColumnNames(#\"Transformer le fichier\"(#\"Exemple de fichier\"))),",
+        "    #\"Type modifié\" = Table.TransformColumnTypes(#\"Colonne de tables développée1\",{{\"Source.Name\", type text}, {\"ProductID\", Int64.Type}, {\"Date\", type date}, {\"Zip\", type text}, {\"Units\", Int64.Type}, {\"Revenue\", type text}, {\"Country\", type text}}),",
+        "    #\"Colonnes supprimées\" = Table.RemoveColumns(#\"Type modifié\",{\"Source.Name\"}),",
+        "    #\"Type modifié avec paramètres régionaux\" = Table.TransformColumnTypes(#\"Colonnes supprimées\", {{\"Revenue\", type number}}, \"en-US\"),",
+        "    #\"Lignes filtrées\" = Table.SelectRows(#\"Type modifié avec paramètres régionaux\", each true)",
+        "in",
+        "    #\"Lignes filtrées\""
+      ],
+      "loadAsTableDisabled": true,
+      "resultType": "Table",
+      "isHidden": false
+    },
+    {
+      "name": "Exemple de fichier",
+      "lineageTag": "a764428e-775a-4e3d-adef-7a0a32ffb057",
+      "queryGroupId": "515463cb-5db3-43f1-a48e-9e8d0541d0eb",
+      "text": [
+        "let",
+        "    Source = Folder.Files(\"E:\\MS2D4\\projet\\Fichiers de travail (1)\\Data\\InternationalSales\"),",
+        "    Navigation1 = Source{0}[Content]",
+        "in",
+        "    Navigation1"
+      ],
+      "loadAsTableDisabled": true,
+      "resultType": "Binary",
+      "isHidden": false
+    },
+    {
+      "name": "Paramètre1",
+      "lineageTag": "15eee932-63c7-4a41-9416-2d87724a4d2c",
+      "queryGroupId": "515463cb-5db3-43f1-a48e-9e8d0541d0eb",
+      "text": [
+        "#\"Exemple de fichier\" meta [IsParameterQuery=true, BinaryIdentifier=#\"Exemple de fichier\", Type=\"Binary\", IsParameterQueryRequired=true]"
+      ],
+      "loadAsTableDisabled": true,
+      "resultType": "Binary",
+      "isHidden": false
+    },
+    {
+      "name": "Transformer l'exemple de fichier",
+      "lineageTag": "d874e0a3-46d9-4fa4-af3b-aace5f8ad5bd",
+      "queryGroupId": "842f5bc4-10fa-405d-aea0-1bd2c21a7832",
+      "text": [
+        "let",
+        "    Source = Csv.Document(Paramètre1,[Delimiter=\",\", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),",
+        "    #\"En-têtes promus\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])",
+        "in",
+        "    #\"En-têtes promus\""
+      ],
+      "loadAsTableDisabled": true,
+      "resultType": "Table",
+      "isHidden": false
+    },
+    {
+      "name": "Transformer le fichier",
+      "lineageTag": "7d5dc8fc-2c65-4e90-bcf3-b37284c5fa32",
+      "queryGroupId": "515463cb-5db3-43f1-a48e-9e8d0541d0eb",
+      "text": [
+        "let",
+        "    Source = (Paramètre1 as binary) => let",
+        "    Source = Csv.Document(Paramètre1,[Delimiter=\",\", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),",
+        "    #\"En-têtes promus\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])",
+        "in",
+        "    #\"En-têtes promus\"",
+        "in",
+        "    Source"
+      ],
+      "loadAsTableDisabled": true,
+      "resultType": "Function",
+      "isHidden": false
+    },
+    {
+      "name": "Exemple de fichier (2)",
+      "lineageTag": "ac10247f-9e30-453d-bf8a-76d86b9b9954",
+      "queryGroupId": "83fcf48c-430d-47dc-8bd9-8fbff49b6103",
+      "text": [
+        "let",
+        "    Source = Folder.Files(\"E:\\MS2D4\\projet\\Fichiers de travail (1)\\Data\\InternationalSales\"),",
+        "    Navigation1 = Source{0}[Content]",
+        "in",
+        "    Navigation1"
+      ],
+      "loadAsTableDisabled": true,
+      "resultType": "Binary",
+      "isHidden": false
+    },
+    {
+      "name": "Paramètre2",
+      "lineageTag": "84061ef6-7ed6-4136-8c38-04fc220c161b",
+      "queryGroupId": "83fcf48c-430d-47dc-8bd9-8fbff49b6103",
+      "text": [
+        "#\"Exemple de fichier (2)\" meta [IsParameterQuery=true, BinaryIdentifier=#\"Exemple de fichier (2)\", Type=\"Binary\", IsParameterQueryRequired=true]"
+      ],
+      "loadAsTableDisabled": true,
+      "resultType": "Binary",
+      "isHidden": false
+    },
+    {
+      "name": "Transformer l'exemple de fichier (2)",
+      "lineageTag": "73eea680-1043-4b8e-bff2-3b6f0bbeee4a",
+      "queryGroupId": "793acfc8-bb02-48c7-858d-a1e07e140d04",
+      "text": [
+        "let",
+        "    Source = Csv.Document(Paramètre2,[Delimiter=\",\", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),",
+        "    #\"En-têtes promus\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])",
+        "in",
+        "    #\"En-têtes promus\""
+      ],
+      "loadAsTableDisabled": true,
+      "resultType": "Table",
+      "isHidden": false
+    },
+    {
+      "name": "Transformer le fichier (2)",
+      "lineageTag": "70825ce3-fa91-412f-be41-235ef880e7d7",
+      "queryGroupId": "83fcf48c-430d-47dc-8bd9-8fbff49b6103",
+      "text": [
+        "let",
+        "    Source = (Paramètre2 as binary) => let",
+        "    Source = Csv.Document(Paramètre2,[Delimiter=\",\", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),",
+        "    #\"En-têtes promus\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])",
+        "in",
+        "    #\"En-têtes promus\"",
+        "in",
+        "    Source"
+      ],
+      "loadAsTableDisabled": true,
+      "resultType": "Function",
+      "isHidden": false
+    }
+  ],
+  "queryGroups": [
+    {
+      "name": "Transformer le fichier à partir de InternationalSales",
+      "id": "842f5bc4-10fa-405d-aea0-1bd2c21a7832",
+      "description": ""
+    },
+    {
+      "name": "Transformer le fichier à partir de InternationalSales (2)",
+      "id": "793acfc8-bb02-48c7-858d-a1e07e140d04",
+      "order": 2,
+      "description": ""
+    },
+    {
+      "name": "Requêtes d'assistance",
+      "id": "515463cb-5db3-43f1-a48e-9e8d0541d0eb",
+      "description": "",
+      "parentId": "842f5bc4-10fa-405d-aea0-1bd2c21a7832"
+    },
+    {
+      "name": "Requêtes d'assistance",
+      "id": "83fcf48c-430d-47dc-8bd9-8fbff49b6103",
+      "description": "",
+      "parentId": "793acfc8-bb02-48c7-858d-a1e07e140d04"
+    }
+  ],
+  "culture": "fr-FR",
+  "firewallEnabled": true
+}

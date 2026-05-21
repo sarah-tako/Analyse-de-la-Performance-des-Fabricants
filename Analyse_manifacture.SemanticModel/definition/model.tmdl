@@ -1,0 +1,39 @@
+model Model
+	culture: fr-FR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: fr-FR
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup 'Transformer le fichier à partir de InternationalSales'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup 'Transformer le fichier à partir de InternationalSales\Requêtes d''assistance'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup 'Transformer le fichier à partir de InternationalSales (2)'
+
+	annotation PBI_QueryGroupOrder = 2
+
+queryGroup 'Transformer le fichier à partir de InternationalSales (2)\Requêtes d''assistance'
+
+	annotation PBI_QueryGroupOrder = 0
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["Sales","Product","geography","Manufacturer","International Sales","Exemple de fichier","Paramètre1","Transformer l'exemple de fichier","Transformer le fichier","Exemple de fichier (2)","Paramètre2","Transformer l'exemple de fichier (2)","Transformer le fichier (2)"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Sales
+ref table Product
+ref table geography
+ref table Manufacturer
+ref table Mesure
+ref table Date
+
+ref cultureInfo fr-FR
+

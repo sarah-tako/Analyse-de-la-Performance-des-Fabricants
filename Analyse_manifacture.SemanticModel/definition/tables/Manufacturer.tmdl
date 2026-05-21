@@ -1,0 +1,88 @@
+table Manufacturer
+	lineageTag: 189b1a28-647c-4194-aa91-c157384e69bb
+
+	column ManufacturerID
+		dataType: int64
+		formatString: 0
+		lineageTag: 80aa3f20-4904-4a73-adda-2e34d42196c2
+		summarizeBy: none
+		sourceColumn: ManufacturerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Manufacturer
+		dataType: string
+		lineageTag: 3da876b6-8358-45a0-b961-b8a663ba0c10
+		summarizeBy: none
+		sourceColumn: Manufacturer
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"Manufacturer","TableItemName":"Manufacturer (groupes)","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+	column Logo
+		dataType: string
+		lineageTag: a8924481-22a8-4dce-b567-05db0178f992
+		dataCategory: ImageUrl
+		summarizeBy: none
+		sourceColumn: Logo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Manufacturer (groupes)' =
+			SWITCH(
+				TRUE,
+				ISBLANK('Manufacturer'[Manufacturer]),
+				"(Vide)",
+				'Manufacturer'[Manufacturer] IN {"Aliqui",
+					"Currus",
+					"Natura",
+					"Pirum"},
+				"Top compétiteurs",
+				'Manufacturer'[Manufacturer] IN {"VanArsdel"},
+				"VanArsdel",
+				"Autre"
+			)
+		lineageTag: 959b7021-54aa-41aa-b3b2-480b75d9ad95
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "Manufacturer"
+				          }
+				        },
+				        "Property": "Manufacturer"
+				      }
+				    }
+				  ]
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"m","Entity":"Manufacturer"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"Manufacturer"}}],"GroupItems":[{"DisplayName":"(Vide)","BlankDefaultPlaceholder":true},{"DisplayName":"Top compétiteurs","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"Manufacturer"}}],"Values":[[{"Literal":{"Value":"'Aliqui'"}}],[{"Literal":{"Value":"'Currus'"}}],[{"Literal":{"Value":"'Natura'"}}],[{"Literal":{"Value":"'Pirum'"}}]]}}},{"DisplayName":"VanArsdel","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"Manufacturer"}}],"Values":[[{"Literal":{"Value":"'VanArsdel'"}}]]}}},{"DisplayName":"Autre"}]}
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Manufacturer = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("E:\MS2D4\projet\Fichiers de travail (1)\Data\USSales\bi_dimensions.xlsx"), null, true),
+				    manufacturer_Sheet = Source{[Item="manufacturer",Kind="Sheet"]}[Data],
+				    #"En-têtes promus" = Table.PromoteHeaders(manufacturer_Sheet, [PromoteAllScalars=true]),
+				    #"Type modifié" = Table.TransformColumnTypes(#"En-têtes promus",{{"Column1", type text}, {"Column2", type any}, {"Column3", type any}, {"Column4", type any}, {"Column5", type any}, {"Column6", type any}, {"Column7", type any}, {"Column8", type any}, {"Column9", type any}, {"Column10", type any}, {"Column11", type any}, {"Column12", type any}, {"Column13", type any}, {"Column14", type any}, {"Column15", type any}}),
+				    #"Dernières lignes supprimées" = Table.RemoveLastN(#"Type modifié",3),
+				    #"Table transposée" = Table.Transpose(#"Dernières lignes supprimées"),
+				    #"En-têtes promus1" = Table.PromoteHeaders(#"Table transposée", [PromoteAllScalars=true]),
+				    #"Type modifié1" = Table.TransformColumnTypes(#"En-têtes promus1",{{"ManufacturerID", Int64.Type}, {"Manufacturer", type text}, {"Logo", type text}})
+				in
+				    #"Type modifié1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

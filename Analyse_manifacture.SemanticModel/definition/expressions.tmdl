@@ -1,0 +1,106 @@
+expression Paramètre1 = #"Exemple de fichier" meta [IsParameterQuery=true, BinaryIdentifier=#"Exemple de fichier", Type="Binary", IsParameterQueryRequired=true]
+	lineageTag: 15eee932-63c7-4a41-9416-2d87724a4d2c
+	queryGroup: 'Transformer le fichier à partir de InternationalSales\Requêtes d''assistance'
+
+	annotation PBI_ResultType = Binary
+
+expression 'International Sales' =
+		let
+		    Source = Folder.Files("E:\MS2D4\projet\Fichiers de travail (1)\Data\InternationalSales"),
+		    #"Fichiers masqués filtrés1" = Table.SelectRows(Source, each [Attributes]?[Hidden]? <> true),
+		    #"Appeler une fonction personnalisée1" = Table.AddColumn(#"Fichiers masqués filtrés1", "Transformer le fichier", each #"Transformer le fichier"([Content])),
+		    #"Colonnes renommées1" = Table.RenameColumns(#"Appeler une fonction personnalisée1", {"Name", "Source.Name"}),
+		    #"Autres colonnes supprimées1" = Table.SelectColumns(#"Colonnes renommées1", {"Source.Name", "Transformer le fichier"}),
+		    #"Colonne de tables développée1" = Table.ExpandTableColumn(#"Autres colonnes supprimées1", "Transformer le fichier", Table.ColumnNames(#"Transformer le fichier"(#"Exemple de fichier"))),
+		    #"Type modifié" = Table.TransformColumnTypes(#"Colonne de tables développée1",{{"Source.Name", type text}, {"ProductID", Int64.Type}, {"Date", type date}, {"Zip", type text}, {"Units", Int64.Type}, {"Revenue", type text}, {"Country", type text}}),
+		    #"Colonnes supprimées" = Table.RemoveColumns(#"Type modifié",{"Source.Name"}),
+		    #"Type modifié avec paramètres régionaux" = Table.TransformColumnTypes(#"Colonnes supprimées", {{"Revenue", type number}}, "en-US"),
+		    #"Lignes filtrées" = Table.SelectRows(#"Type modifié avec paramètres régionaux", each true)
+		in
+		    #"Lignes filtrées"
+	lineageTag: af24fba0-5a03-4740-aa95-ab456afe18bc
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Exemple de fichier' =
+		let
+		    Source = Folder.Files("E:\MS2D4\projet\Fichiers de travail (1)\Data\InternationalSales"),
+		    Navigation1 = Source{0}[Content]
+		in
+		    Navigation1
+	lineageTag: a764428e-775a-4e3d-adef-7a0a32ffb057
+	queryGroup: 'Transformer le fichier à partir de InternationalSales\Requêtes d''assistance'
+
+	annotation PBI_ResultType = Binary
+
+expression 'Transformer l''exemple de fichier' =
+		let
+		    Source = Csv.Document(Paramètre1,[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"En-têtes promus" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+		in
+		    #"En-têtes promus"
+	lineageTag: d874e0a3-46d9-4fa4-af3b-aace5f8ad5bd
+	queryGroup: 'Transformer le fichier à partir de InternationalSales'
+
+	annotation PBI_ResultType = Table
+
+expression 'Transformer le fichier' =
+		let
+		    Source = (Paramètre1 as binary) => let
+		    Source = Csv.Document(Paramètre1,[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"En-têtes promus" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+		in
+		    #"En-têtes promus"
+		in
+		    Source
+	mAttributes: [ FunctionQueryBinding = "{""exemplarFormulaName"":""Transformer l\u0027exemple de fichier""}" ]
+	lineageTag: 7d5dc8fc-2c65-4e90-bcf3-b37284c5fa32
+	queryGroup: 'Transformer le fichier à partir de InternationalSales\Requêtes d''assistance'
+
+	annotation PBI_ResultType = Function
+
+expression Paramètre2 = #"Exemple de fichier (2)" meta [IsParameterQuery=true, BinaryIdentifier=#"Exemple de fichier (2)", Type="Binary", IsParameterQueryRequired=true]
+	lineageTag: 84061ef6-7ed6-4136-8c38-04fc220c161b
+	queryGroup: 'Transformer le fichier à partir de InternationalSales (2)\Requêtes d''assistance'
+
+	annotation PBI_ResultType = Binary
+
+expression 'Exemple de fichier (2)' =
+		let
+		    Source = Folder.Files("E:\MS2D4\projet\Fichiers de travail (1)\Data\InternationalSales"),
+		    Navigation1 = Source{0}[Content]
+		in
+		    Navigation1
+	lineageTag: ac10247f-9e30-453d-bf8a-76d86b9b9954
+	queryGroup: 'Transformer le fichier à partir de InternationalSales (2)\Requêtes d''assistance'
+
+	annotation PBI_ResultType = Binary
+
+expression 'Transformer l''exemple de fichier (2)' =
+		let
+		    Source = Csv.Document(Paramètre2,[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"En-têtes promus" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+		in
+		    #"En-têtes promus"
+	lineageTag: 73eea680-1043-4b8e-bff2-3b6f0bbeee4a
+	queryGroup: 'Transformer le fichier à partir de InternationalSales (2)'
+
+	annotation PBI_ResultType = Table
+
+expression 'Transformer le fichier (2)' =
+		let
+		    Source = (Paramètre2) => let
+		        Source = Csv.Document(Paramètre2,[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		        #"En-têtes promus" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+		    in
+		        #"En-têtes promus"
+		in
+		    Source
+	mAttributes: [ FunctionQueryBinding = "{""exemplarFormulaName"":""Transformer l\u0027exemple de fichier (2)""}" ]
+	lineageTag: 70825ce3-fa91-412f-be41-235ef880e7d7
+	queryGroup: 'Transformer le fichier à partir de InternationalSales (2)\Requêtes d''assistance'
+
+	annotation PBI_ResultType = Function
+
